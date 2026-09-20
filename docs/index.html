@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101820">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Atlas">
+<title>Atlas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>🗺️ Atlas</h1>
+  <span id="updated" class="muted"></span>
+</header>
+
+<main>
+  <!-- OVERVIEW -->
+  <section id="tab-overview" class="tab">
+    <div class="kpis" id="kpis"></div>
+    <h2>This week <span class="muted" id="week-label"></span></h2>
+    <div class="compare" id="compare"></div>
+    <h2>Last 12 weeks</h2>
+    <div class="chart-wrap"><canvas id="ov-weeks" height="170"></canvas></div>
+    <h2>All time</h2>
+    <table class="table" id="ov-sports"><thead><tr><th>sport</th><th>n</th><th>distance</th><th>time</th><th>climb</th></tr></thead><tbody></tbody></table>
+    <h2>Latest</h2>
+    <div class="cards" id="ov-latest"></div>
+  </section>
+
+  <!-- RECORDS -->
+  <section id="tab-records" class="tab" hidden>
+    <div class="chips" id="rec-chips"></div>
+    <div id="records"></div>
+    <div id="prog-wrap" hidden>
+      <h2 id="prog-title"></h2>
+      <div class="chart-wrap"><canvas id="prog-chart" height="200"></canvas></div>
+      <p class="muted small">Dots are every attempt; the line is the record as it stood. Tap a dot for the activity.</p>
+    </div>
+  </section>
+
+  <!-- RANKINGS -->
+  <section id="tab-rankings" class="tab" hidden>
+    <div class="chips" id="rank-chips"></div>
+    <p class="muted small">Ranked by the Atlas score — distance by sport plus climb (the table on the Log tab's ⓘ says how).</p>
+    <div class="cards" id="rankings"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section id="tab-progress" class="tab" hidden>
+    <h2>Weekly distance <span class="muted">km, by sport</span></h2>
+    <div class="chart-wrap"><canvas id="pr-weekly" height="190"></canvas></div>
+    <h2>Monthly distance</h2>
+    <div class="chart-wrap"><canvas id="pr-monthly" height="180"></canvas></div>
+    <h2>Monthly climb <span class="muted">m</span></h2>
+    <div class="chart-wrap"><canvas id="pr-climb" height="160"></canvas></div>
+    <h2>Running pace and heart rate</h2>
+    <div class="chart-wrap"><canvas id="pr-runhr" height="200"></canvas></div>
+    <p class="muted small">Pace (left, min/mile — lower is faster) and average heart rate (right) for every run over 1 km. Fitness is heart rate coming down at the same pace, or pace coming down at the same heart rate.</p>
+    <h2>Cycling speed and heart rate</h2>
+    <div class="chart-wrap"><canvas id="pr-ridehr" height="200"></canvas></div>
+    <h2>Cumulative distance <span class="muted">km, this year</span></h2>
+    <div class="chart-wrap"><canvas id="pr-cum" height="180"></canvas></div>
+    <h2>Consistency</h2>
+    <div class="kpis" id="pr-streaks"></div>
+  </section>
+
+  <!-- LOG -->
+  <section id="tab-log" class="tab" hidden>
+    <div class="chips" id="log-chips"></div>
+    <div class="table-scroll">
+      <table class="table log" id="log">
+        <thead><tr>
+          <th data-k="start_local">date</th><th data-k="sport">sport</th><th data-k="name">name</th>
+          <th data-k="distance_m" class="num">dist</th><th data-k="duration_s" class="num">time</th>
+          <th data-k="secs_per_km" class="num">pace</th><th data-k="ascent_m" class="num">climb</th>
+          <th data-k="avg_hr" class="num">HR</th><th data-k="score" class="num">score</th><th data-k="rank" class="num">#</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="muted small">Tap a heading to sort; tap a row for the detail and map. <span id="log-count"></span></p>
+  </section>
+
+  <!-- MAP -->
+  <section id="tab-map" class="tab" hidden>
+    <div id="bigmap" class="bigmap"></div>
+    <p class="muted small" id="map-note">Every track, coloured by sport. Tap a line for the activity.</p>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="overview" class="on">Overview</button>
+  <button data-tab="records">Records</button>
+  <button data-tab="rankings">Rank</button>
+  <button data-tab="progress">Progress</button>
+  <button data-tab="log">Log</button>
+  <button data-tab="map">Map</button>
+</nav>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-inner">
+    <button class="close" id="sheet-close" aria-label="close">✕</button>
+    <div id="sheet-title" class="sheet-title"></div>
+    <div id="sheet-sub" class="muted"></div>
+    <div id="sheet-stats" class="sheet-stats"></div>
+    <div id="map" class="map" hidden></div>
+    <div id="sheet-efforts"></div>
+    <div id="sheet-flags" class="flags"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

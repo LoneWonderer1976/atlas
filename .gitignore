@@ -1,0 +1,5 @@
+# Garmin tokens -- the one secret on disk. Never commit.
+.garmin_tokens/
+__pycache__/
+*.pyc
+.env
