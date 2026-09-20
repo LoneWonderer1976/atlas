@@ -65,9 +65,9 @@ def main() -> None:
             git("remote", "add", "origin", f"https://github.com/{full}.git")
             print(f"repository {full} exists; remote added")
         else:
-            gh("repo", "create", REPO, "--private", "--source", str(ROOT), "--remote", "origin", "--push",
+            gh("repo", "create", REPO, "--public", "--source", str(ROOT), "--remote", "origin", "--push",
                "--description", "Joe's training, measured: Garmin -> records, rankings, progress")
-            print(f"created private repository {full} and pushed")
+            print(f"created public repository {full} and pushed")
     r = git("push", "-u", "origin", "main", check=False)
     print("pushed" if r.returncode == 0 else f"push: {r.stderr.strip().splitlines()[-1]}")
 
