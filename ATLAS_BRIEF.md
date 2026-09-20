@@ -53,6 +53,18 @@ things a stats page needs and Argo did not:
 - **Streaks** count weeks with at least one activity, and the current streak tolerates this week
   being empty so a Monday morning does not read as a broken run.
 
+## The PB ladders, in miles and kilometres (20/09/2026, late)
+
+Ben: *"for Joe can we add more run distances and also cycles both miles and kilometres — for
+PBs."* `records.TARGETS` now runs 400 m → marathon in sixteen steps for running (both units:
+1 km and 1 mile, 2 km and 2 miles, 5 km and 5 miles, 10 km and 10 miles, 15 km, 20 km, half,
+30 km), fifteen for cycling (1 km → 100 miles, likewise both), and the walk, swim and kayak
+ladders grew a rung or two. The ladders are shipped in `data.json` as `targets`, so the page
+reads distances from the same table the records are computed from rather than carrying its
+own copy — the activity sheet lists an activity's efforts in ladder order with the pace
+against each. A record exists only once an activity has covered the distance, so a rung the
+watch has never seen is simply absent, not a blank.
+
 ## The page
 
 Six tabs in a fixed bottom bar (Overview, Records, Rank, Progress, Log, Map), each rendered on

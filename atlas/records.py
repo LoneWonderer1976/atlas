@@ -17,13 +17,16 @@ MI = 1609.344
 
 # targets per sport, in metres, with a short label -- the ladder a runner or rider actually quotes
 TARGETS = {
-    "run":   [(400, "400 m"), (1000, "1 km"), (MI, "1 mile"), (5000, "5 km"), (10000, "10 km"),
-              (21097.5, "Half marathon"), (42195, "Marathon")],
-    "cycle": [(5000, "5 km"), (10000, "10 km"), (10 * MI, "10 miles"), (20000, "20 km"), (40000, "40 km"),
-              (50 * MI, "50 miles"), (100000, "100 km")],
-    "walk":  [(MI, "1 mile"), (5000, "5 km"), (10000, "10 km"), (20000, "20 km")],
-    "swim":  [(100, "100 m"), (200, "200 m"), (400, "400 m"), (1000, "1 km"), (MI, "1 mile")],
-    "kayak": [(1000, "1 km"), (5000, "5 km"), (10000, "10 km")],
+    "run":   [(400, "400 m"), (800, "800 m"), (1000, "1 km"), (MI, "1 mile"), (2000, "2 km"), (3000, "3 km"),
+              (2 * MI, "2 miles"), (5000, "5 km"), (5 * MI, "5 miles"), (10000, "10 km"), (15000, "15 km"),
+              (10 * MI, "10 miles"), (20000, "20 km"), (21097.5, "Half marathon"), (30000, "30 km"),
+              (42195, "Marathon")],
+    "cycle": [(1000, "1 km"), (MI, "1 mile"), (5000, "5 km"), (5 * MI, "5 miles"), (10000, "10 km"), (10 * MI, "10 miles"),
+              (20000, "20 km"), (25000, "25 km"), (20 * MI, "20 miles"), (40000, "40 km"), (25 * MI, "25 miles"),
+              (50000, "50 km"), (50 * MI, "50 miles"), (100000, "100 km"), (100 * MI, "100 miles")],
+    "walk":  [(MI, "1 mile"), (5000, "5 km"), (5 * MI, "5 miles"), (10000, "10 km"), (10 * MI, "10 miles"), (20000, "20 km")],
+    "swim":  [(100, "100 m"), (200, "200 m"), (400, "400 m"), (800, "800 m"), (1000, "1 km"), (MI, "1 mile"), (2000, "2 km")],
+    "kayak": [(1000, "1 km"), (MI, "1 mile"), (5000, "5 km"), (5 * MI, "5 miles"), (10000, "10 km")],
 }
 
 # the floor a "fastest average" record needs, so a 300 m sprint is not the fastest run
@@ -165,7 +168,10 @@ def selftest() -> None:
     # interpolation: 2 points, 100 m in 40 s; the fastest 50 m is 20 s
     assert fastest([0.0, 40.0], [0.0, 100.0], 50)[0] == 20.0
     eff = best_efforts({"t": t, "d": d}, "run")
-    assert set(eff) == {"400 m", "1 km", "1 mile"} and abs(eff["1 km"] - 240) < 1
+    assert set(eff) == {"400 m", "800 m", "1 km", "1 mile", "2 km", "3 km"} and abs(eff["1 km"] - 240) < 1   # a 3 km run
+    for sport, ladder in TARGETS.items():
+        assert [m for m, _ in ladder] == sorted(m for m, _ in ladder), f"{sport} ladder out of order"
+        assert len({lab for _, lab in ladder}) == len(ladder), f"{sport} ladder repeats a label"
     assert best_efforts(None, "run") == {} and best_efforts({"t": [0], "d": [0]}, "run") == {}
     assert fmt_time(3661) == "1:01:01" and fmt_time(245.4) == "4:05"
     assert pace_str(300, "run") == "8:02 /mi" and pace_str(120, "cycle") == "30.0 km/h" and pace_str(600, "swim") == "1:00 /100m"

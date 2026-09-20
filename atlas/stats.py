@@ -205,6 +205,7 @@ def build(activities: list[dict] | None = None, overrides: dict | None = None, s
         "built_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "today": today_uk().isoformat(),
         "name": "Joe",
+        "targets": {s: [[round(m, 1), lab] for m, lab in ladder] for s, ladder in records.TARGETS.items()},
         "since": first.isoformat() if first else None,
         "totals": totals,
         "this_week": by_week.get(tw), "last_week": by_week.get(lw),
@@ -277,7 +278,8 @@ def selftest() -> None:
     rows = {r["id"]: r for r in dd["activities"]}
     assert rows[1]["rank"] == 2 and rows[2]["rank"] == 1 and rows[2]["sport_rank"] == 1 and rows[1]["sport_rank"] == 1
     assert rows[4]["rank"] is None and rows[4]["score"] == 0 and rows[4]["efforts"] == {}
-    assert set(rows[1]["efforts"]) == {"400 m", "1 km", "1 mile", "5 km"} and abs(rows[1]["efforts"]["1 km"] - 250) < 1
+    assert {"400 m", "1 km", "1 mile", "5 km", "2 miles"} <= set(rows[1]["efforts"]) and abs(rows[1]["efforts"]["1 km"] - 250) < 1
+    assert "5 miles" not in rows[1]["efforts"] and dd["targets"]["run"][0] == [400, "400 m"]
     assert rows[1]["pace"] == "7:54 /mi" and rows[3]["flags"] == ["no heart rate recorded"]
     assert any("over the cycle ceiling" in f for f in rows[4]["flags"])
     rec = {(r["sport"], r["label"]): r for r in dd["records"]}

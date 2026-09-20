@@ -247,9 +247,10 @@
       [a.score.toFixed(1), "score"], [a.avg_cadence ? Math.round(a.avg_cadence) : "—", "cadence"], [a.calories ? Math.round(a.calories) : "—", "kcal"],
     ].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
     const recs = Object.fromEntries(DATA.records.filter((r) => r.kind === "effort" && r.sport === a.sport).map((r) => [r.label, r.activity_id]));
-    const eff = Object.entries(a.efforts);
+    const order = (DATA.targets[a.sport] || []).map((t) => t[1]);
+    const eff = Object.entries(a.efforts).sort((x, y) => order.indexOf(x[0]) - order.indexOf(y[0]));
     $("sheet-efforts").innerHTML = eff.length ? `<div class="efforts"><table class="table"><thead><tr><th>best effort</th><th class="num">time</th><th class="num">pace</th></tr></thead><tbody>${
-      eff.map(([label, secs]) => { const m = { "400 m": 400, "1 km": 1000, "1 mile": MI, "5 km": 5000, "10 km": 10000, "10 miles": 10 * MI, "20 km": 20000, "40 km": 40000, "50 miles": 50 * MI, "100 km": 100000, "Half marathon": 21097.5, "Marathon": 42195, "100 m": 100, "200 m": 200 }[label] || 0;
+      eff.map(([label, secs]) => { const m = ((DATA.targets[a.sport] || []).find((t) => t[1] === label) || [0])[0];
         const spk = m ? secs / (m / 1000) : 0;
         const pace = !m ? "" : a.sport === "swim" ? `${hms(spk / 10)} /100m` : (a.sport === "run" || a.sport === "walk") ? `${minmi(spk)} /mi` : `${(3600 / spk).toFixed(1)} km/h`;
         return `<tr><td>${esc(label)}${recs[label] === a.id ? ' <span class="pb">PB</span>' : ""}</td><td class="num">${hms(secs)}</td><td class="num">${pace}</td></tr>`; }).join("")}</tbody></table></div>` : "";
