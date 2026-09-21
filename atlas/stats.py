@@ -244,6 +244,9 @@ def write_site(data: dict) -> bool:
 
 
 def print_report(data: dict) -> None:
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")      # a Windows console cannot print the records' "≥"
     t = data["totals"]
     print(f"Atlas -- {t['n']} activities since {data['since']}, {t['distance_m'] / 1000:.1f} km, "
           f"{t['ascent_m']} m climbed, {records.fmt_time(t['duration_s'])} moving; streak {data['streaks']['current']} weeks "
