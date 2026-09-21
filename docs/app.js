@@ -80,7 +80,7 @@
       data: { labels: weeks.map((w) => w.key.slice(8, 10) + "/" + w.key.slice(5, 7)),
         datasets: SPORTS.map((s) => ({ label: s, data: weeks.map((w) => ((w.sports[s] || {}).distance_m || 0) / 1000), backgroundColor: col(s), stack: "d", borderRadius: 3 })) },
       options: { plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 10 } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} km` } } },
-        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true } }, animation: false },
+        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, title: { display: true, text: "km" }, ticks: { callback: (v) => v + " km" } } }, animation: false },
     };
   }
 
@@ -153,12 +153,12 @@
     chart("pr-monthly", {
       type: "bar",
       data: { labels: months.map((m) => m.label), datasets: SPORTS.map((s) => ({ label: s, data: months.map((m) => ((m.sports[s] || {}).distance_m || 0) / 1000), backgroundColor: col(s), stack: "d", borderRadius: 3 })) },
-      options: { animation: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} km` } } }, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true } } },
+      options: { animation: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} km` } } }, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, title: { display: true, text: "km" } } } },
     });
     chart("pr-climb", {
       type: "bar",
       data: { labels: months.map((m) => m.label), datasets: [{ data: months.map((m) => m.ascent_m), backgroundColor: col("accent"), borderRadius: 4 }] },
-      options: { animation: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } },
+      options: { animation: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${Math.round(c.parsed.y)} m climbed` } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, title: { display: true, text: "m" } } } },
     });
     const runs = DATA.trends.run;
     chart("pr-runhr", {
@@ -193,7 +193,7 @@
     chart("pr-cum", {
       type: "line",
       data: { labels: labels.map(dmy), datasets: SPORTS.filter((s) => cum[s].length && cum[s][cum[s].length - 1] > 0).map((s) => ({ label: s, data: cum[s], borderColor: col(s), backgroundColor: col(s), pointRadius: 0, borderWidth: 2, tension: .2 })) },
-      options: { animation: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 10 } } }, scales: { x: { ticks: { maxTicksLimit: 8 }, grid: { display: false } }, y: { beginAtZero: true } } },
+      options: { animation: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 10 } } }, scales: { x: { ticks: { maxTicksLimit: 8 }, grid: { display: false } }, y: { beginAtZero: true, title: { display: true, text: "km" } } } },
     });
     const st = DATA.streaks;
     $("pr-streaks").innerHTML = [kpi(st.current + " wk", "current streak"), kpi(st.longest + " wk", "longest streak"),
