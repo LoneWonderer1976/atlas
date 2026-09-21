@@ -67,10 +67,13 @@
     ].map(([a, b, label, f]) => `<div><b>${f(a)}</b><small>${label}<br>last wk ${f(b)}</small></div>`).join("");
     const weeks = DATA.weeks.slice(-12);
     chart("ov-weeks", stackedWeeks(weeks));
-    $("ov-sports").querySelector("tbody").innerHTML = SPORTS.filter((s) => t.sports[s]).map((s) => {
+    if (DATA.since) $("alltime-sub").textContent = `every activity since ${dmy(DATA.since)}, by sport`;
+    const sportRows = SPORTS.filter((s) => t.sports[s]).map((s) => {
       const v = t.sports[s];
-      return `<tr><td>${ICON[s]} ${s}</td><td class="num">${v.n}</td><td class="num">${dist(v.distance_m, s)}</td><td class="num">${hms(v.duration_s)}</td><td class="num">${v.ascent_m} m</td></tr>`;
-    }).join("") || `<tr><td colspan="5" class="muted">nothing yet</td></tr>`;
+      return `<tr><td>${ICON[s]} ${s}</td><td class="num">${v.n}</td><td class="num">${dist(v.distance_m, s)}</td><td class="num">${hms(v.duration_s)}</td><td class="num">${v.ascent_m.toLocaleString()} m</td></tr>`;
+    });
+    if (sportRows.length > 1) sportRows.push(`<tr style="font-weight:600"><td>all</td><td class="num">${t.n}</td><td class="num">${mi(t.distance_m)}</td><td class="num">${hms(t.duration_s)}</td><td class="num">${t.ascent_m.toLocaleString()} m</td></tr>`);
+    $("ov-sports").querySelector("tbody").innerHTML = sportRows.join("") || `<tr><td colspan="5" class="muted">nothing yet</td></tr>`;
     $("ov-latest").innerHTML = DATA.activities.slice(0, 5).map(cardHTML).join("") || `<p class="muted">No activities yet.</p>`;
     bindCards($("ov-latest"));
   }
