@@ -53,6 +53,10 @@ main { padding: 0 16px calc(76px + env(safe-area-inset-bottom)); max-width: 820p
 .table th.sorted { color: var(--accent); }
 .table tr:last-child td { border-bottom: 0; }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; }
+/* a table that should fit a phone: headings may wrap (TIME / MOVING) and cells pad tighter; the
+   .table-scroll round it catches whatever still does not fit, so the page itself never drifts sideways */
+.table.fit th { white-space: normal; vertical-align: bottom; }
+@media (max-width: 420px) { .table.fit th, .table.fit td { padding-left: 6px; padding-right: 6px; } }
 .log tbody tr { cursor: pointer; }
 .log tr.struck td { opacity: .5; text-decoration: line-through; }
 .log tr.flagged td { background: var(--flag); }
