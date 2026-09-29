@@ -116,7 +116,7 @@
     });
     if (sportRows.length > 1) sportRows.push(`<tr style="font-weight:600"><td>all</td><td class="num">${t.n}</td><td class="num">${mi(t.distance_m)}</td><td class="num">${hms(t.duration_s)}</td><td class="num">${t.ascent_m.toLocaleString()} m</td></tr>`);
     $("ov-sports").querySelector("tbody").innerHTML = sportRows.join("") || `<tr><td colspan="5" class="muted">nothing yet</td></tr>`;
-    $("ov-latest").innerHTML = DATA.activities.slice(0, 5).map(cardHTML).join("") || `<p class="muted">No activities yet.</p>`;
+    $("ov-latest").innerHTML = DATA.activities.slice(0, 5).map((a) => cardHTML(a)).join("")   // map's index is not a rank || `<p class="muted">No activities yet.</p>`;
     bindCards($("ov-latest"));
   }
   function stackedWeeks(weeks) {
