@@ -1,5 +1,5 @@
 /* Atlas -- the page. Reads data.json (written by atlas/stats.py) and draws it. No state of its own
-   beyond which tab is open. */
+   beyond which tab is open and which congratulations this phone has already shown. */
 (function () {
   const $ = (id) => document.getElementById(id);
   const MI = 1609.344;
@@ -9,6 +9,7 @@
   const dur = (s) => { s = Math.round(s || 0); return s >= 3600 ? `${Math.floor(s / 3600)}h ${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}m` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`; };
   const hms = (s) => { s = Math.round(s || 0); return s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
   const ICON = { run: "🏃", walk: "🚶", cycle: "🚴", swim: "🏊", kayak: "🛶", other: "❓", all: "🌍" };
+  const NOUN = { run: "run", walk: "walk", cycle: "ride", swim: "swim", kayak: "paddle" };
   const SPORTS = ["run", "walk", "cycle", "swim", "kayak"];
   const DAY = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const when = (s) => { const d = new Date(s.replace(" ", "T")); return `${DAY[(d.getDay() + 6) % 7]} ${d.getDate()} ${d.toLocaleString("en-GB", { month: "short" })}, ${s.slice(11, 16)}`; };
@@ -29,6 +30,47 @@
     charts = {};
     $("updated").textContent = "updated " + new Date(DATA.built_at).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" });
     show(document.querySelector(".tabs button.on").dataset.tab);
+    reveal();
+  }
+
+  /* ---------------- the congratulations ----------------
+     data.json carries one `frontier` per activity that moved a record (atlas/frontiers.py). A new
+     one pops up once; after that it lives on the activity's sheet and in Records' "Frontiers moved". */
+  const SEEN_KEY = "atlas.frontiers.seen", REVEAL_MAX = 3;
+  const seenKey = (a) => `${a.id}|${a.frontier.key}`;
+  const seen = () => { try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || "[]")); } catch (e) { return new Set(); } };
+  const markSeen = (keys) => { try { localStorage.setItem(SEEN_KEY, JSON.stringify([...keys])); } catch (e) { /* private mode */ } };
+  let queue = [], showing = null;
+  function moments() { return DATA.activities.filter((a) => a.frontier).sort((a, b) => a.start_local < b.start_local ? -1 : 1); }
+  function reveal() {
+    if (showing) return;
+    const done = seen();
+    const fresh = moments().filter((a) => !done.has(seenKey(a)));
+    // a backlog (a new phone, a month away) is not replayed one by one: the newest few, the rest are in Records
+    if (fresh.length > REVEAL_MAX) { for (const a of fresh.slice(0, -REVEAL_MAX)) done.add(seenKey(a)); markSeen(done); }
+    queue = fresh.slice(-REVEAL_MAX);
+    nextMoment();
+  }
+  function nextMoment() {
+    showing = queue.shift() || null;
+    if (!showing) { $("congrats").hidden = true; return; }
+    const a = showing, f = a.frontier;
+    $("congrats-kicker").textContent = `${ICON[a.sport]} ${f.kind === "first_sport" ? "A new board opens" : "Frontier moved"}`;
+    $("congrats-title").textContent = f.title;
+    $("congrats-text").textContent = f.text;
+    $("congrats-also").textContent = f.also ? `Also moved: ${f.also}.` : "";
+    $("congrats-meta").textContent = `${a.name || a.sport} · ${when(a.start_local)}`;
+    $("congrats-see").textContent = `See the ${NOUN[a.sport] || "activity"}`;
+    $("congrats-next").textContent = queue.length ? "Next →" : "Brilliant!";
+    $("congrats").hidden = false;
+    const s = seen(); s.add(seenKey(a)); markSeen(s);
+  }
+  $("congrats-next").addEventListener("click", nextMoment);
+  $("congrats-see").addEventListener("click", () => { const id = showing.id; $("congrats").hidden = true; showing = null; openSheet(id); });
+  function frontierHTML(a, withDate) {
+    const f = a.frontier;
+    return `<div class="frontier ${a.sport}" data-id="${a.id}"><div class="f-title">🏆 ${esc(f.title)}${withDate ? `<span class="muted"> · ${ICON[a.sport]} ${dmy(a.date)}</span>` : ""}</div>
+      <div class="f-text">${esc(f.text)}</div>${f.also ? `<div class="f-also">Also moved: ${esc(f.also)}.</div>` : ""}</div>`;
   }
 
   function chart(id, cfg) {
@@ -92,7 +134,7 @@
     const flagged = a.flags.length && a.sport !== "other" && !a.excluded;
     return `<div class="card ${a.excluded ? "struck" : ""}" data-id="${a.id}">
       ${rankno ? `<div class="rankno">${rankno}</div>` : `<div class="icon ${a.sport}">${ICON[a.sport] || ICON.other}</div>`}
-      <div><div class="name">${rankno ? ICON[a.sport] + " " : ""}${esc(a.name || a.sport)}${flagged ? " ⚠" : ""}</div>
+      <div><div class="name">${rankno ? ICON[a.sport] + " " : ""}${esc(a.name || a.sport)}${flagged ? " ⚠" : ""}${a.frontier ? ` <span class="trophy" title="${esc(a.frontier.title)}">🏆</span>` : ""}</div>
         <div class="meta">${when(a.start_local)} · ${dist(a.distance_m, a.sport)}${a.ascent_m ? " · " + Math.round(a.ascent_m) + " m ↑" : ""} · ${dur(a.duration_s)}${a.pace ? " · " + a.pace : ""}</div></div>
       <div class="right"><b>${a.score.toFixed(1)}</b><small>${a.rank ? "#" + a.rank : "—"}</small></div>
     </div>`;
@@ -120,6 +162,9 @@
       else if (el.dataset.id) openSheet(+el.dataset.id);
     }));
     $("prog-wrap").hidden = true;
+    const ms = moments().filter((a) => recSport === "all" || a.sport === recSport).reverse();
+    $("rec-moments").innerHTML = ms.map((a) => frontierHTML(a, true)).join("") || `<p class="muted">None yet — the first record moment lands here.</p>`;
+    $("rec-moments").querySelectorAll(".frontier").forEach((el) => el.addEventListener("click", () => openSheet(+el.dataset.id)));
   }
   function progression(key, series) {
     const [sport, label] = key.split("|");
@@ -211,7 +256,7 @@
       .sort((a, b) => { const x = a[sortKey], y = b[sortKey]; if (x == null) return 1; if (y == null) return -1; return (x < y ? -1 : x > y ? 1 : 0) * sortDir; });
     $("log").querySelectorAll("th").forEach((th) => { th.classList.toggle("sorted", th.dataset.k === sortKey); th.onclick = () => { if (sortKey === th.dataset.k) sortDir = -sortDir; else { sortKey = th.dataset.k; sortDir = th.dataset.k === "start_local" || th.classList.contains("num") ? -1 : 1; if (th.dataset.k === "secs_per_km" || th.dataset.k === "rank") sortDir = 1; } logTab(); }; });
     $("log").querySelector("tbody").innerHTML = rows.map((a) => `<tr data-id="${a.id}" class="${a.excluded ? "struck" : (a.flags.length && a.sport !== "other" ? "flagged" : "")}">
-      <td>${dmy(a.date)}</td><td>${ICON[a.sport]}</td><td>${esc(a.name)}</td><td class="num">${dist(a.distance_m, a.sport)}</td><td class="num">${hms(a.duration_s)}</td>
+      <td>${dmy(a.date)}</td><td>${ICON[a.sport]}</td><td>${esc(a.name)}${a.frontier ? ` <span title="${esc(a.frontier.title)}">🏆</span>` : ""}</td><td class="num">${dist(a.distance_m, a.sport)}</td><td class="num">${hms(a.duration_s)}</td>
       <td class="num">${a.pace || "—"}</td><td class="num">${Math.round(a.ascent_m)}</td><td class="num">${a.avg_hr ? Math.round(a.avg_hr) : "—"}</td><td class="num">${a.score.toFixed(1)}</td><td class="num">${a.rank || "—"}</td></tr>`).join("");
     $("log").querySelectorAll("tbody tr").forEach((tr) => tr.addEventListener("click", () => openSheet(+tr.dataset.id)));
     $("log-count").textContent = `${rows.length} activities.`;
@@ -244,6 +289,7 @@
     if (!a) return;
     $("sheet-title").textContent = a.name || a.sport;
     $("sheet-sub").textContent = `${ICON[a.sport]} ${a.sport} · ${when(a.start_local)}${a.rank ? ` · #${a.rank} overall, #${a.sport_rank} ${a.sport}` : ""}`;
+    $("sheet-frontier").innerHTML = a.frontier ? frontierHTML(a, false) : "";
     $("sheet-stats").innerHTML = [
       [dist(a.distance_m, a.sport), "distance"], [hms(a.duration_s), "time"], [a.pace || "—", "pace"],
       [Math.round(a.ascent_m) + " m", "climb"], [a.avg_hr ? Math.round(a.avg_hr) + " bpm" : "—", "avg HR"], [a.max_hr ? Math.round(a.max_hr) + " bpm" : "—", "max HR"],
@@ -272,8 +318,10 @@
       } catch (e) { mapEl.hidden = true; }
     }
   }
-  $("sheet-close").addEventListener("click", () => { $("sheet").hidden = true; });
-  $("sheet").addEventListener("click", (e) => { if (e.target === $("sheet")) $("sheet").hidden = true; });
+  // closing a sheet opened from the pop-up carries on with any congratulations still queued
+  const closeSheet = () => { $("sheet").hidden = true; if (queue.length) nextMoment(); };
+  $("sheet-close").addEventListener("click", closeSheet);
+  $("sheet").addEventListener("click", (e) => { if (e.target === $("sheet")) closeSheet(); });
 
   const RENDER = { overview, records: recordsTab, rankings, progress, log: logTab, map: mapTab };
   try { const t = localStorage.getItem("atlas.tab"); if (t && RENDER[t]) { document.querySelectorAll(".tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === t)); } } catch (e) { /* private mode */ }

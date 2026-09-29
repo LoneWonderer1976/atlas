@@ -103,3 +103,29 @@ main { padding: 0 16px calc(76px + env(safe-area-inset-bottom)); max-width: 820p
 .flags { margin-top: 10px; font-size: .9rem; }
 .flags .flag { background: var(--flag); border-radius: 8px; padding: 6px 10px; margin-top: 6px; }
 .pb { color: var(--accent); font-weight: 700; }
+
+/* the congratulations: a pop-up once, then a banner on the sheet and a list on Records */
+.trophy { font-size: .9em; }
+.frontier { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 10px 12px; }
+.moments { display: flex; flex-direction: column; gap: 8px; }
+.moments .frontier { cursor: pointer; }
+#sheet-frontier .frontier { margin-top: 12px; background: var(--bg); }
+.frontier .f-title { font-weight: 700; }
+.frontier .f-title .muted { font-weight: 400; font-size: .82rem; }
+.frontier .f-text { margin-top: 3px; line-height: 1.45; }
+.frontier .f-also { margin-top: 5px; color: var(--muted); font-size: .8rem; }
+.congrats { position: fixed; inset: 0; z-index: 30; background: rgba(8, 14, 22, .78); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.congrats-inner { background: var(--card); border-radius: 20px; padding: 26px 20px 20px; max-width: 420px; width: 100%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4); animation: pop .45s cubic-bezier(.2,1.4,.4,1); max-height: 90vh; overflow: auto; }
+.congrats-burst { font-size: 3.6rem; line-height: 1; animation: bounce 1.2s ease-in-out infinite; }
+.congrats-kicker { color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; margin-top: 10px; }
+.congrats-title { font-size: 1.5rem; font-weight: 800; margin: 6px 0 10px; line-height: 1.2; }
+.congrats-text { font-size: 1.02rem; line-height: 1.5; }
+.congrats-also { color: var(--muted); font-size: .82rem; margin: 10px 0 4px; }
+.congrats-also:empty { display: none; }
+.congrats-btns { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+.congrats-btn { background: var(--accent); color: #14202e; border: 0; border-radius: 999px; padding: 11px 26px; font: inherit; font-size: 1rem; font-weight: 700; }
+.congrats-link { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 999px; padding: 10px 18px; font: inherit; font-size: .92rem; }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (prefers-reduced-motion: reduce) { .congrats-inner, .congrats-burst { animation: none; } }

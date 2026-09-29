@@ -2,7 +2,7 @@
 import subprocess
 import sys
 
-MODULES = ["scoring", "sports", "weeks", "sync", "records", "stats"]
+MODULES = ["scoring", "sports", "weeks", "sync", "records", "frontiers", "stats"]
 fails = 0
 for m in MODULES:
     r = subprocess.run([sys.executable, "-m", f"atlas.{m}", "--selftest"], capture_output=True, text=True)

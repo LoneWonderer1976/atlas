@@ -29,7 +29,7 @@ Then `https://<you>.github.io/atlas/` on his phone → *Add to Home Screen*.
 | tab | what |
 |---|---|
 | **Overview** | all-time distance / time / climb / streak; this week against last; the last 12 weeks by sport; totals per sport; the latest activities |
-| **Records** | per sport: fastest 400 m · 1 km · 1 mile · 5 km · 10 km · half · marathon (runs), 5 km … 100 km (rides), and so on; longest, most climb, longest time, fastest average over a floor distance; biggest week and month. Tap a record for its **progression** — every attempt as a dot, the record as it stood as a line |
+| **Records** | per sport: fastest 400 m · 1 km · 1 mile · 5 km · 10 km · half · marathon (runs), 5 km … 100 km (rides), and so on; longest, most climb, longest time, fastest average over a floor distance; biggest week and month. Tap a record for its **progression** — every attempt as a dot, the record as it stood as a line. **Frontiers moved**: every congratulation so far, newest first |
 | **Rank** | every activity by the Atlas score (distance by sport plus climb — `atlas/scoring.py`), overall or within a sport |
 | **Progress** | weekly and monthly distance stacked by sport, monthly climb, **running pace and heart rate over time** (fitness is HR coming down at the same pace), the same for cycling speed, cumulative distance this year, consistency |
 | **Log** | every activity in a table — tap a heading to sort, a chip to filter, a row for the detail |
@@ -37,6 +37,11 @@ Then `https://<you>.github.io/atlas/` on his phone → *Add to Home Screen*.
 
 Tapping any activity opens its sheet: the numbers, its map, and its best efforts with **PB**
 marked where it holds the record.
+
+**Congratulations.** Every activity that moves a record gets one message for Joe, about the most
+relevant one: a first 10 km, under 30 minutes for 5 km, the longest walk, and so on
+(`atlas/frontiers.py`). It pops up once when he opens the page. After that it stays on the
+activity's sheet, as a 🏆 on its card, and in Records → Frontiers moved.
 
 ## Corrections
 

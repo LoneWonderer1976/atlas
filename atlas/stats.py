@@ -6,7 +6,8 @@
 
 What goes into data.json:
   activities   every activity, scored (scoring.py), with its best efforts (records.py), pace,
-               flags, and its RANK overall and within its sport
+               flags, its RANK overall and within its sport, and its `frontier` -- the one
+               congratulation for the most relevant record it moved, or null (frontiers.py)
   records      the board -- fastest 1 km / 5 km / ..., longest, most climb, biggest week and month
   progression  for every (sport, target): each activity's time, and the running best -- the
                line a records chart draws
@@ -23,7 +24,7 @@ import datetime as dt
 import json
 import shutil
 
-from . import records, scoring, store
+from . import frontiers, records, scoring, store
 from .weeks import this_week, today_uk, week_for, week_label, week_of
 
 MI = records.MI
@@ -179,6 +180,9 @@ def build(activities: list[dict] | None = None, overrides: dict | None = None, s
     overrides = store.overrides() if overrides is None else overrides
     rows = scored_rows(activities, overrides, streams)
     rank(rows)
+    said = frontiers.messages(rows)
+    for r in rows:
+        r["frontier"] = said.get(r["id"])
     first = dt.date.fromisoformat(min(r["date"] for r in rows)) if rows else None
     weeks = weeks_table(rows, first)
     months = months_table(rows)
@@ -256,6 +260,11 @@ def print_report(data: dict) -> None:
     print("records:")
     for r in data["records"]:
         print(f"  {r['sport']:5} {r['label']:32} {r['display']:>10}  {r.get('sub', ''):14} {r['date']}  {r.get('name', '')}")
+    said = [r for r in data["activities"] if r.get("frontier")]
+    print(f"frontiers moved ({len(said)} of {len(data['activities'])} activities):")
+    for r in sorted(said, key=lambda r: r["start_local"]):
+        f = r["frontier"]
+        print(f"  {r['date']}  {r['sport']:5} {f['title']:32} {f['text']}" + (f"  [also: {f['also']}]" if f["also"] else ""))
     print("top 10 by score:")
     for r in sorted((r for r in data["activities"] if r["rank"]), key=lambda r: r["rank"])[:10]:
         print(f"  #{r['rank']:<3} {r['date']}  {r['sport']:5} {r['distance_m'] / 1000:6.1f} km {r['ascent_m']:5.0f} m  {r['score']:6.1f}  {r['name']}")
@@ -289,6 +298,8 @@ def selftest() -> None:
     assert rec[("run", "5 km")]["activity_id"] == 1 and rec[("cycle", "Longest")]["activity_id"] == 2   # the struck 50 km is not longest
     assert rec[("swim", "400 m")]["display"] == "1:40"
     assert dd["progression"]["run|1 km"][0]["improved"] is True
+    assert rows[1]["frontier"]["kind"] == "first_sport" and rows[2]["frontier"]["title"] == "First ride"
+    assert rows[4]["frontier"] is None                                   # struck: no congratulations
     assert dd["totals"]["n"] == 3 and dd["totals"]["sports"]["cycle"]["distance_m"] == 30000
     assert dd["weeks"][0]["key"] == "2026-07-06" and dd["weeks"][0]["n"] == 1 and dd["weeks"][1]["n"] == 2
     assert dd["months"][0]["key"] == "2026-07" and dd["months"][0]["n"] == 3

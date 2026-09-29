@@ -75,6 +75,49 @@ old should not be all cards. The Map draws every track at once, coloured by spor
 load; at Joe's volume that is tens of small files, not thousands. Tapping anything opens the
 activity sheet: the numbers, its map, its best efforts with **PB** where it holds the record.
 
+## The congratulations: one message per frontier moved (29/09/2026)
+
+Ben: *"add some congratulatory messages to Joe that are revealed when he hits a new record,
+longest walk, fastest 5k etc, only 1 message per activity, the most relevant whenever a frontier
+is moved."*
+
+`atlas/frontiers.py` replays the activities **oldest first**, carrying every frontier the records
+board shows (the fastest time at each rung, longest, most climb, longest time, fastest average,
+biggest week and month) plus the longest streak. Whatever an activity moved *at the time it
+happened* is a candidate. The most relevant one becomes its message, and the rest go on one line
+under it (*Also moved: fastest 400 m, 800 m … ; longest run*). That keeps it to one message
+without hiding the other records. It is derived on every run like everything else: strike an old
+activity and the messages after it change on the next build, because the struck one no longer
+sets the bar.
+
+**Most relevant** is a fixed order (`ORDER`), because "the biggest improvement" would need
+exchange rates between seconds, metres and weeks, and there is no honest way to set them:
+
+1. **The first activity of a sport.** Its whole board is new, so nothing else is said.
+2. **A milestone**, the first time over a named distance (`MILESTONES`: the first 5 km run, half
+   marathon, 100 km ride, 10-mile walk, mile swim …). Each has its own message. Covering a new rung
+   always means a new longest as well, and the named distance is the better sentence.
+3. **Then the sport decides.** Running and swimming are about speed, so a PB comes before the
+   longest. Walking, cycling and paddling are about distance, so the longest comes first, then the
+   most climb, then a PB. That is how the brief put it: *longest walk*, *fastest 5k*.
+   Among several PBs in one run, a **barrier** wins (`BARRIERS`: under 30 minutes for 5 km, under
+   2 hours for the half; the moment a runner remembers), then the **longest rung**. That is the one
+   he would quote, and the one least at the mercy of a GPS wobble.
+4. Fastest average, most climb, longest time, biggest week, biggest month, longest streak.
+
+A week, month or streak record goes to the activity that **crossed** the old best, not to every
+later one in the same week. The first week, month and streak are not records, because there was
+nothing to beat. On Joe's history as it stood (10 activities), 9 carry a message. The 0.7 km walk
+on 1 August moved nothing, so it has none.
+
+The words are content, written in the module: several variants per kind, picked by activity id so
+an activity always reads the same. No message repeats its own title. **Revealed** means the pop-up:
+on opening the page, an unseen message appears once (🏆, the title, the words, *See the run* /
+*Brilliant!*). What has been seen is kept per phone in `localStorage`. A backlog (a new phone, a
+month away) shows only the newest three, and the rest are marked seen and sit in Records. After
+that each message lives on its activity's sheet, in **Records → Frontiers moved** (newest first,
+following the sport chips), and as a 🏆 on the activity's card and Log row.
+
 ## Not built, deliberately
 
 - **Heart-rate zones and training load.** They need Joe's max HR / thresholds (his to give) and

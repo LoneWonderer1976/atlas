@@ -43,6 +43,8 @@
       <div class="chart-wrap"><canvas id="prog-chart" height="200"></canvas></div>
       <p class="muted small">Dots are every attempt; the line is the record as it stood. Tap a dot for the activity.</p>
     </div>
+    <h2>Frontiers moved <span class="muted">every record moment, newest first</span></h2>
+    <div class="moments" id="rec-moments"></div>
   </section>
 
   <!-- RANKINGS -->
@@ -109,10 +111,26 @@
     <button class="close" id="sheet-close" aria-label="close">✕</button>
     <div id="sheet-title" class="sheet-title"></div>
     <div id="sheet-sub" class="muted"></div>
+    <div id="sheet-frontier"></div>
     <div id="sheet-stats" class="sheet-stats"></div>
     <div id="map" class="map" hidden></div>
     <div id="sheet-efforts"></div>
     <div id="sheet-flags" class="flags"></div>
+  </div>
+</div>
+
+<div id="congrats" class="congrats" hidden>
+  <div class="congrats-inner" role="dialog" aria-labelledby="congrats-title">
+    <div class="congrats-burst">🏆</div>
+    <div id="congrats-kicker" class="congrats-kicker">Frontier moved</div>
+    <div id="congrats-title" class="congrats-title"></div>
+    <div id="congrats-text" class="congrats-text"></div>
+    <div id="congrats-also" class="congrats-also"></div>
+    <div id="congrats-meta" class="muted small"></div>
+    <div class="congrats-btns">
+      <button id="congrats-see" class="congrats-link">See it</button>
+      <button id="congrats-next" class="congrats-btn">Brilliant!</button>
+    </div>
   </div>
 </div>
 
